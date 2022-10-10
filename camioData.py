@@ -99,7 +99,19 @@ def nameAndData(data):
             out.append((fn,line[len(items[0])+ + 4:]))
         except: continue
     return out
-objOut = nameAndData(objData)
-zoneOut = nameAndData(zoneData)
-for fn,dat in objOut:
-    print(fn,dat)
+
+def test0():
+    objOut = nameAndData(objData)
+    zoneOut = nameAndData(zoneData)
+    for fn,dat in objOut:
+        print(fn,dat)
+
+def test_pause(t=300):
+    pause = ' \"{}ms\" '.format(t)
+    s1 = 'welcome'
+    s2 = 'Welcome to the Magic Map!'
+    out = f'<speak>\n\t{s1}\n\t<break time={pause}/>\n\t{s2}\n</speak>'
+    print(out)
+    print('<speak>\n\t{}\n\t<break time=\"{}ms\"/>\n\t{}\n</speak>'.format(s1,t,s2) )
+if __name__ == '__main__':
+    test_pause()
