@@ -1,7 +1,6 @@
 import websocket
 import _thread
 import time
-import rel
 
 # def on_message(ws, message):
 #     print(message)
@@ -64,10 +63,10 @@ def getClient(host,port, trace = False):
 def test1():
     host,port = "34.237.62.252",8001
     ws = getClient(host,port, trace=False)
-    ws.run_forever(dispatcher=rel)  # Set dispatcher to automatic reconnection
+    ws.run_forever()  # Set dispatcher to automatic reconnection
     
     ws1 = getClient(host,port, trace=False)
-    ws1.run_forever(dispatcher=rel)  # Set dispatcher to automatic reconnection
+    ws1.run_forever()  # Set dispatcher to automatic reconnection
 
     
     import time

@@ -16,14 +16,12 @@ def b64toImg(imgstring, filename = 'some_image.jpg'):
     with open(filename, 'wb') as f:
         f.write(imgdata)
 
-
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.label = QLabel(self)
         self.label.setGeometry(0, 0, 400, 300)
-        self.scale = 0.5
+        self.scale = 0.667
         self.transform = QTransform().rotate(-90).scale(self.scale,self.scale)
         # self.btn1 = self.addButton("Reload Image", self.reloadImage)
         self.btn2 = self.addButton("New Image", self.ask4Image)
