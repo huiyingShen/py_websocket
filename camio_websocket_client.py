@@ -17,6 +17,7 @@ def b64toImg(imgstring, filename = 'some_image.jpg'):
         f.write(imgdata)
 
 class MainWindow(QMainWindow):
+    data_saved = [[1021, 118],[451, 139], [447, 583],[1066, 566],[483, 289], [884, 497]]
     def __init__(self):
         super().__init__()
         self.label = QLabel(self)
@@ -28,7 +29,10 @@ class MainWindow(QMainWindow):
         self.btn3 = self.addButton("Send Data", self.sendData)
         self.btn4 = self.addButton("Result Image", self.ask4ResultImage)
         self.loadImage(QPixmap("some_image.jpg").transformed(self.transform))
+        print("self.image.height() = {}".format(self.image.height()))
         self.pnts = []
+        self.pnts_sav = []
+        
 
         self.ws = TheClient("34.237.62.252",8001,trace = False, on_message=self.on_message).ws
         threading.Thread(target=self.ws.run_forever).start()
@@ -48,6 +52,8 @@ class MainWindow(QMainWindow):
                 b64toImg(txt[pos+3:])
                 # transform = QTransform().rotate(-90)
                 self.loadImage(QPixmap("some_image.jpg").transformed(self.transform))
+                if len(self.pnts) == 6:
+                    self.pnts_sav = self.pnts
                 self.pnts = []
             except:
                 pass
@@ -72,13 +78,37 @@ class MainWindow(QMainWindow):
     def sendData(self):
         # jnk = self.pnts.splitlines()
         h = self.image.height()
+        print("self.image.height() = {}".format(self.image.height()))
         jnk = ""
         for p in self.pnts:
             x,y = h-p[1], p[0]
             jnk += '\n{} {}'.format(x/self.scale, y/self.scale)
         print(jnk[1:])
-        self.ws.send(f"New Landmark Data:" + jnk[1:])
+        if len(self.pnts) == 6:
+            self.pnts_sav = self.pnts
+            self.ws.send(f"New Landmark Data:" + jnk[1:])
+            threading.Thread(target=self.sendOldLoop).start()
 
+
+    def sendOldLoop(self):
+        from time import sleep
+        print("starting sendOldLoop(), ...")
+        while True:
+            sleep(5*60)
+            self.sendSaved()
+            
+    def sendSaved(self):
+        if len(self.pnts_sav) != 6:
+            print("not enough data in self.pnts_sav")
+            return
+        print("sendSaved(), ...,")
+        h = self.image.height()
+        jnk = "" 
+        for p in self.pnts_sav:
+            x,y = h-p[1], p[0]
+            jnk += '\n{} {}'.format(x/self.scale, y/self.scale)
+        print(jnk[1:])
+        self.ws.send(f"New Landmark Data:" + jnk[1:])
 
     def setLayout(self):
         self.label.setPixmap(self.image)

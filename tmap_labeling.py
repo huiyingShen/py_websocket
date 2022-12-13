@@ -3,7 +3,7 @@ import sys
 
 from PyQt5.QtCore import Qt,QRect
 from PyQt5.QtGui import QPainter,QPixmap,QPen,QTransform,QFont
-from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton,QLineEdit,QFileDialog
+from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton,QLineEdit,QFileDialog,QScrollArea
 
 import threading
 
@@ -15,12 +15,14 @@ class MainWindow(QMainWindow):
         self.img_label.setGeometry(0, 0, 400, 300)
         self.scale = 1.0
         self.transform = QTransform().scale(self.scale,self.scale)
-        self.fn = "scan_market.jpg"
+        self.fn = "market_smaller.jpg"
         self.image = QPixmap(self.fn).transformed(self.transform)
 
         self.img_label.setPixmap(self.image)
         self.img_label.resize(self.image.width(), self.image.height())
+
         self.setFixedSize(self.image.width(), self.image.height()+50)
+
         w,h = 150,40
         x,y = 5,self.image.height()+5
         self.xywh = x,y,w,h
@@ -43,6 +45,8 @@ class MainWindow(QMainWindow):
 
     def getFile(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file','.',"Image files (*.jpg *.png)")[0]
+        # print('fname = ',fname)
+        if fname == '': return #file open canceled
         self.fn = fname.split('/')[-1]
         self.loadImage()
 
@@ -66,7 +70,7 @@ class MainWindow(QMainWindow):
 
     def addButton(self,x,y,w,h,title,fn):
         btn = QPushButton(title,self)
-        btn.setFont(QFont('Times', 18))  
+        btn.setFont(QFont("Helvetica [Cronyx]", 16))  
         btn.clicked.connect(fn)
         btn.setGeometry(x, y, w, h)
 
@@ -84,14 +88,20 @@ class MainWindow(QMainWindow):
         self.drawPolylines()
 
     def saveData(self):
-        for l in self.labeled_data:
-            print(l)
+        print(self.labeled_data[0][0])
+        for l in self.labeled_data[1:]:
+            nm,dat = l
+            line = nm + ': '
+            for x,y in dat:
+                line += '{:.1f},{:.1f} '.format(x/self.scale, y/self.scale)
+            print(line)
+            
 
 
     def drawPolylines(self):
         painter = QPainter(self.img_label.pixmap())
         painter.setPen(QPen(Qt.green, 3, Qt.SolidLine))
-        painter.setFont(QFont("times",32))
+        painter.setFont(QFont("Helvetica [Cronyx]",24))
         for dat in self.labeled_data[1:]:
             name , polyline = dat
             x,y = polyline[0]
